@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VISIOON — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="logo-bar">
+    <span class="logo-mount"></span>
+    <button class="btn ghost small" id="btnLogout">Logg ut</button>
+  </div>
+
+  <nav class="tabs">
+    <button data-tab="oversikt" class="active">🧭 Oversikt</button>
+    <button data-tab="roster">👤 Roster</button>
+    <button data-tab="trender">📡 Trendradar</button>
+    <button data-tab="ukeplan">🗓️ Ukeplan</button>
+  </nav>
+
+  <!-- OVERSIKT -->
+  <div class="tab active" id="tab-oversikt">
+    <div class="stat-row" id="overviewStats"></div>
+    <div id="overviewBoard"></div>
+  </div>
+
+  <!-- ROSTER -->
+  <div class="tab" id="tab-roster">
+    <details class="form" id="rosterFormWrap">
+      <summary>+ Legg til modell</summary>
+      <div class="card">
+        <div class="grid grid-2">
+          <div><label>Navn / alias</label><input id="mName" placeholder="f.eks. Therese"></div>
+          <div><label>Nisje</label><input id="mNiche" placeholder="f.eks. trening, gamer-jente, alt/goth, glam"></div>
+        </div>
+        <label>Persona og vibe</label>
+        <textarea id="mPersona" placeholder="f.eks. lekent jente-i-nabolaget, trening + matlaging, pastellestetikk, sterk banter i kommentarer"></textarea>
+        <div class="grid grid-2">
+          <div><label>Plattformer</label><input id="mPlatforms" placeholder="IG, TikTok"></div>
+          <div><label>Hun er komfortabel med å lage</label><input id="mComfort" placeholder="f.eks. dans, skisser, GRWM, ikke fjes på TikTok"></div>
+        </div>
+        <div class="grid grid-2">
+          <div><label>Brukernavn (til pålogging)</label><input id="mEmail" placeholder="f.eks. Therese"></div>
+          <div><label>Passord (gi denne til modellen)</label><input id="mPassword" placeholder="Minst 6 tegn"></div>
+        </div>
+        <div style="margin-top:12px;"><button class="btn" id="btnAddModel">Lagre modell</button></div>
+      </div>
+    </details>
+    <div class="grid grid-2" id="rosterList"></div>
+  </div>
+
+  <!-- TRENDER -->
+  <div class="tab" id="tab-trender">
+    <div class="banner">💡 Algoritme-notat: Instagram vekter DM-delinger 3–5× høyere enn likes for Reels-rekkevidde. Prioriter formater folk sender til en venn. Hook i de første 2 sekundene er ikke valgfritt.</div>
+    <details class="form">
+      <summary>+ Legg til en trend du har sett</summary>
+      <div class="card">
+        <div class="grid" style="grid-template-columns: 2fr 1fr 1fr;">
+          <div><label>Trendnavn</label><input id="tName" placeholder="f.eks. ny lyd / transisjon"></div>
+          <div><label>Format</label><select id="tFormat"><option value="Reel">Reel</option><option value="Carousel">Carousel</option><option value="Story">Story</option></select></div>
+          <div><label>Innsats</label><select id="tEffort"><option value="Lav">Lav</option><option value="Middels">Middels</option><option value="Høy">Høy</option></select></div>
+        </div>
+        <label>Hvorfor det funker / hvordan tilpasse</label>
+        <textarea id="tWhy"></textarea>
+        <div style="margin-top:12px;"><button class="btn" id="btnAddTrend">Lagre trend</button></div>
+      </div>
+    </details>
+    <div class="row" style="margin-bottom:12px;">
+      <span class="muted">Filter:</span>
+      <button class="btn small ghost" data-filter="all">Alle</button>
+      <button class="btn small ghost" data-filter="ny">Ny</button>
+      <button class="btn small ghost" data-filter="testes">Testes</button>
+      <button class="btn small ghost" data-filter="bevist">Bevist</button>
+    </div>
+    <div class="grid grid-2" id="trendList"></div>
+  </div>
+
+  <!-- UKEPLAN -->
+  <div class="tab" id="tab-ukeplan">
+    <div class="card">
+      <label>Ukens fokus (én setning til alle modeller)</label>
+      <input id="focusText" placeholder="F.eks. Denne uka: alt skal ha hook på skjermen i frame 1">
+      <div class="top-actions" style="margin-top:12px;">
+        <div class="row">
+          <span class="pill deadline" id="weekLabel">Uke –</span>
+          <span class="muted" id="weekStatus"></span>
+        </div>
+        <div class="row">
+          <button class="btn ghost small" id="btnDuplicate">Dupliser forrige uke</button>
+          <button class="btn small" id="btnPublish">Publiser uke</button>
+        </div>
+      </div>
+    </div>
+
+    <details class="form">
+      <summary>+ Ny oppgave til poolen</summary>
+      <div class="card">
+        <div class="grid" style="grid-template-columns: 2fr 1fr 1fr;">
+          <div><label>Tittel</label><input id="pTitle" placeholder="f.eks. Tørk kameraet-reveal: treningsfit"></div>
+          <div><label>Format</label><select id="pFormat"><option value="Reel">Reel</option><option value="Carousel">Carousel</option><option value="Story">Story</option></select></div>
+          <div><label>Innsats</label><select id="pEffort"><option value="Lav">Lav</option><option value="Middels">Middels</option><option value="Høy">Høy</option></select></div>
+        </div>
+        <label>Hook (første 2 sekunder)</label>
+        <input id="pHook" placeholder="Tekst/visuell hook i frame 1">
+        <label>Slik gjør du det</label>
+        <textarea id="pExec" placeholder="Kort utførelsesnotat til modellen"></textarea>
+        <label>Basert på trend (valgfritt)</label>
+        <select id="pTrend"><option value="">— ingen —</option></select>
+        <div style="margin-top:12px;"><button class="btn" id="btnAddPoolTask">Legg i pool</button></div>
+      </div>
+    </details>
+
+    <h3 style="margin-bottom:8px;">Oppgavepool (dra inn i uken under)</h3>
+    <div class="pool" id="pool"></div>
+
+    <div class="planner" id="plannerGrid"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/logo.js"></script>
+<script src="assets/supabase-client.js"></script>
+<script src="assets/store.js"></script>
+<script src="assets/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VISIOON</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="wrap narrow">
+  <div class="logo-bar" style="justify-content:center;">
+    <span class="logo-mount"></span>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Logg inn</h2>
+    <p class="muted" id="loginError" style="display:none; color:#b91c1c;"></p>
+
+    <label>Brukernavn eller e-post</label>
+    <input type="text" id="loginEmail" autocomplete="username">
+    <label>Passord</label>
+    <input type="password" id="loginPassword" autocomplete="current-password">
+    <div style="margin-top:16px;"><button class="btn block" id="btnLogin">Logg inn</button></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/logo.js"></script>
+<script src="assets/supabase-client.js"></script>
+<script src="assets/store.js"></script>
+<script>
+renderLogo('.logo-mount');
+
+// Already logged in? Skip straight to the right app.
+(async () => {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return;
+  const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  if (!profile) return;
+  goToApp(profile);
+})();
+
+function goToApp(profile) {
+  sessionStorage.setItem('visioon_role', profile.role);
+  if (profile.role === 'model') sessionStorage.setItem('visioon_model_id', profile.id);
+  window.location.href = profile.role === 'admin' ? 'admin.html' : 'app.html';
+}
+
+function showError(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+document.getElementById('btnLogin').onclick = async () => {
+  const identifier = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!identifier || !password) { showError('Fyll inn brukernavn og passord.'); return; }
+  const email = identifier.includes('@') ? identifier : usernameToEmail(identifier);
+
+  const btn = document.getElementById('btnLogin');
+  btn.disabled = true;
+  btn.textContent = 'Logger inn...';
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) {
+    showError('Feil brukernavn/e-post eller passord.');
+    btn.disabled = false;
+    btn.textContent = 'Logg inn';
+    return;
+  }
+
+  const { data: profile, error: profileError } = await sb.from('profiles').select('*').eq('id', data.user.id).single();
+  if (profileError || !profile) {
+    showError('Fant ingen VISIOON-profil for denne kontoen. Kontakt admin.');
+    btn.disabled = false;
+    btn.textContent = 'Logg inn';
+    return;
+  }
+  goToApp(profile);
+};
+</script>
+</body>
+</html>

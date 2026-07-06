@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VISIOON</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="wrap narrow">
+  <div class="logo-bar">
+    <span class="logo-mount"></span>
+    <button class="btn ghost small" id="btnLogout">Logg ut</button>
+  </div>
+
+  <nav class="tabs">
+    <button data-tab="dashboard" class="active">Dashboard</button>
+    <button data-tab="historikk">Historikk</button>
+  </nav>
+
+  <!-- DASHBOARD -->
+  <div class="tab active" id="tab-dashboard">
+    <h2 id="greeting" style="margin:0 0 6px;"></h2>
+    <p class="muted" id="weekHeader" style="margin:0 0 10px;"></p>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between; margin-bottom:8px;">
+        <span class="pill deadline" id="weekLabel"></span>
+        <span class="muted" id="progressLabel"></span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%;"></div></div>
+    </div>
+
+    <div class="banner" id="focusBanner" style="display:none;"></div>
+
+    <div id="taskList"></div>
+  </div>
+
+  <!-- HISTORIKK -->
+  <div class="tab" id="tab-historikk">
+    <div id="streakBox" style="margin-bottom:12px;"></div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/logo.js"></script>
+<script src="assets/supabase-client.js"></script>
+<script src="assets/store.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
