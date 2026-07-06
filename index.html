@@ -20,7 +20,7 @@
     <p class="muted" id="loginError" style="display:none; color:#b91c1c;"></p>
 
     <label>Brukernavn eller e-post</label>
-    <input type="text" id="loginEmail" autocomplete="username">
+    <input type="text" id="loginEmail" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
     <label>Passord</label>
     <input type="password" id="loginPassword" autocomplete="current-password">
     <div style="margin-top:16px;"><button class="btn block" id="btnLogin">Logg inn</button></div>
@@ -56,9 +56,9 @@ function showError(msg) {
   el.style.display = 'block';
 }
 
-document.getElementById('btnLogin').onclick = async () => {
+async function doLogin() {
   const identifier = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPassword').value;
+  const password = document.getElementById('loginPassword').value.trim();
   if (!identifier || !password) { showError('Fyll inn brukernavn og passord.'); return; }
   const email = identifier.includes('@') ? identifier : usernameToEmail(identifier);
 
@@ -82,7 +82,12 @@ document.getElementById('btnLogin').onclick = async () => {
     return;
   }
   goToApp(profile);
-};
+}
+
+document.getElementById('btnLogin').onclick = doLogin;
+['loginEmail', 'loginPassword'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
+});
 </script>
 </body>
 </html>
