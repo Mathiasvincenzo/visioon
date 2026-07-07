@@ -20,6 +20,7 @@
     <button data-tab="oversikt" class="active">🧭 Oversikt</button>
     <button data-tab="roster">👤 Roster</button>
     <button data-tab="trender">📡 Trendradar</button>
+    <button data-tab="idemotor">💡 Idémotor</button>
     <button data-tab="ukeplan">🗓️ Ukeplan</button>
   </nav>
 
@@ -78,6 +79,33 @@
       <button class="btn small ghost" data-filter="bevist">Bevist</button>
     </div>
     <div class="grid grid-2" id="trendList"></div>
+  </div>
+
+  <!-- IDÉMOTOR -->
+  <div class="tab" id="tab-idemotor">
+    <div class="card">
+      <h2 style="margin-top:0;">💡 AI Idé-motor</h2>
+      <p class="muted">Velger en modell, blander persona med aktiv trendradar, og genererer en batch med plattform-trygge idéer.</p>
+      <div class="grid" style="grid-template-columns: 1fr 1fr 1fr; margin-top:10px;">
+        <div><label>Modell</label><select id="ideaModel"></select></div>
+        <div><label>Batch-type</label>
+          <select id="ideaBatchType">
+            <option value="mix">Mix: trender + originale</option>
+            <option value="trends">Kun trend-gjenskapelser</option>
+            <option value="original">Kun originale idéer</option>
+            <option value="hooks">10 hooks</option>
+            <option value="week">Full 7-dagers plan</option>
+          </select>
+        </div>
+        <div><label>Ekstra retning (valgfritt)</label><input id="ideaExtra" placeholder="f.eks. gym-tema, kun lav innsats"></div>
+      </div>
+      <div style="margin-top:12px;"><button class="btn" id="btnGenerateIdeas">⚡ Generer idéer</button></div>
+      <div id="ideaError" class="muted" style="display:none; color:#b91c1c; margin-top:10px;"></div>
+    </div>
+    <div class="grid grid-2" id="ideaResults"></div>
+    <div id="ideaActions" style="display:none; margin-bottom:16px;">
+      <button class="btn" id="btnAddSelectedIdeas">Legg valgte idéer i oppgavepoolen</button>
+    </div>
   </div>
 
   <!-- UKEPLAN -->

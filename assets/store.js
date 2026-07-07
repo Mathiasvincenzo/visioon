@@ -267,4 +267,15 @@ const Store = {
     const field = role === 'admin' ? 'read_by_admin' : 'read_by_model';
     return this.listComments(taskId).some(c => !c[field]);
   },
+
+  // --- AI Idea Engine ---
+  async generateIdeas(model, batchType, extra) {
+    const activeTrends = this.listTrends().filter(t => t.status !== 'utgatt');
+    const { data, error } = await sb.functions.invoke('generate-ideas', {
+      body: { model, trends: activeTrends, batchType, extra },
+    });
+    if (error) fail(error, 'generere idéer');
+    if (data.error) fail(new Error(data.error), 'generere idéer');
+    return data.ideas;
+  },
 };

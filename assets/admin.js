@@ -402,9 +402,90 @@ function renderOverviewComments(tasks) {
   });
 }
 
+// --- Idea Engine ---
+function renderIdeaModelSelect() {
+  const sel = document.getElementById('ideaModel');
+  const cur = sel.value;
+  const models = Store.listModels().filter(m => m.active);
+  sel.innerHTML = models.length
+    ? models.map(m => `<option value="${m.id}">${esc(m.display_name)} — ${esc(m.niche || 'ingen nisje')}</option>`).join('')
+    : '<option value="">Ingen modeller ennå</option>';
+  if (cur) sel.value = cur;
+}
+
+function ideaCardHtml(idea, i) {
+  return `
+  <div class="card">
+    <label class="row" style="align-items:flex-start; cursor:pointer;">
+      <input type="checkbox" class="idea-check" data-idea-index="${i}" checked style="width:auto; margin-top:4px;">
+      <div style="flex:1;">
+        <h3 style="margin:0 0 6px;">${esc(idea.title)}</h3>
+        <div class="row" style="margin-bottom:6px;">
+          <span class="pill format">${esc(idea.format)}</span>
+          <span class="pill effort">${esc(idea.effort)}</span>
+        </div>
+        ${idea.hook ? `<div class="hook" style="background:#faf7f5; border-radius:8px; padding:8px 10px; font-size:13px; margin:6px 0;">🪝 ${esc(idea.hook)}</div>` : ''}
+        ${idea.execution ? `<div class="muted">${esc(idea.execution)}</div>` : ''}
+      </div>
+    </label>
+  </div>`;
+}
+
+let lastGeneratedIdeas = [];
+
+document.getElementById('btnGenerateIdeas').onclick = async () => {
+  const modelId = document.getElementById('ideaModel').value;
+  const model = Store.getModel(modelId);
+  const errEl = document.getElementById('ideaError');
+  errEl.style.display = 'none';
+  if (!model) { errEl.textContent = 'Legg til en modell i Roster-fanen først.'; errEl.style.display = 'block'; return; }
+
+  const batchType = document.getElementById('ideaBatchType').value;
+  const extra = document.getElementById('ideaExtra').value.trim();
+  const btn = document.getElementById('btnGenerateIdeas');
+  btn.disabled = true;
+  btn.textContent = '⏳ Genererer...';
+  document.getElementById('ideaResults').innerHTML = '';
+  document.getElementById('ideaActions').style.display = 'none';
+
+  try {
+    lastGeneratedIdeas = await Store.generateIdeas(model, batchType, extra);
+    document.getElementById('ideaResults').innerHTML = lastGeneratedIdeas.map(ideaCardHtml).join('');
+    document.getElementById('ideaActions').style.display = lastGeneratedIdeas.length ? 'block' : 'none';
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⚡ Generer idéer';
+  }
+};
+
+document.getElementById('btnAddSelectedIdeas').onclick = async () => {
+  const checked = Array.from(document.querySelectorAll('.idea-check:checked')).map(c => lastGeneratedIdeas[parseInt(c.dataset.ideaIndex, 10)]);
+  if (!checked.length) return;
+  const btn = document.getElementById('btnAddSelectedIdeas');
+  btn.disabled = true;
+  btn.textContent = 'Legger til...';
+  const draft = await Store.getDraftWeek();
+  for (const idea of checked) {
+    await Store.addPoolTask(draft.id, {
+      title: idea.title, hook: idea.hook || '', execution: idea.execution || '',
+      format: idea.format || 'Reel', effort: idea.effort || 'Lav',
+    });
+  }
+  btn.disabled = false;
+  btn.textContent = 'Legg valgte idéer i oppgavepoolen';
+  document.getElementById('ideaResults').innerHTML = '';
+  document.getElementById('ideaActions').style.display = 'none';
+  alert(`${checked.length} idé(er) lagt i oppgavepoolen. Gå til Ukeplan for å dra dem inn i uken.`);
+  await renderPlanner();
+};
+
 async function renderAll() {
   renderRoster();
   renderTrends();
+  renderIdeaModelSelect();
   await renderPlanner();
   renderOverview();
 }
