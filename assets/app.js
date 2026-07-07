@@ -40,18 +40,48 @@ function currentWeek() {
   return Store.getLatestPublishedWeekForModel(MODEL_ID);
 }
 
+function computeStreak() {
+  const weeks = Store.getPublishedWeeksDesc().filter(w => Store.tasksForModelWeek(w.id, MODEL_ID).length > 0);
+  let streak = 0;
+  for (const w of weeks) {
+    const tasks = Store.tasksForModelWeek(w.id, MODEL_ID);
+    const pct = tasks.length ? tasks.filter(t => t.status === 'postet').length / tasks.length : 0;
+    if (pct === 1) streak++; else break;
+  }
+  return streak;
+}
+
+function showCelebration(msg) {
+  const toast = document.getElementById('celebrateToast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(showCelebration._t);
+  showCelebration._t = setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
 function renderDashboard() {
   document.getElementById('greeting').textContent = greetingText();
-  document.getElementById('weekHeader').textContent = T.week_tasks_header;
 
   const week = currentWeek();
   const taskList = document.getElementById('taskList');
   const focusBanner = document.getElementById('focusBanner');
+  const heroCard = document.getElementById('heroCard');
+  const heroStreak = document.getElementById('heroStreak');
+
+  const streak = computeStreak();
+  if (streak > 0) {
+    heroStreak.style.display = 'inline-flex';
+    heroStreak.textContent = T.streak(streak);
+  } else {
+    heroStreak.style.display = 'none';
+  }
 
   if (!week) {
+    document.getElementById('weekHeader').textContent = T.encourage_none;
     document.getElementById('weekLabel').textContent = '';
     document.getElementById('progressLabel').textContent = '';
     document.getElementById('progressFill').style.width = '0%';
+    heroCard.classList.remove('is-complete');
     focusBanner.style.display = 'none';
     taskList.innerHTML = `<div class="empty card">${T.empty_week}</div>`;
     return;
@@ -59,10 +89,19 @@ function renderDashboard() {
 
   const tasks = Store.tasksForModelWeek(week.id, MODEL_ID).sort((a, b) => (a.deadline_date || '').localeCompare(b.deadline_date || ''));
   const done = tasks.filter(t => t.status === 'postet').length;
+  const allDone = tasks.length > 0 && done === tasks.length;
+
+  document.getElementById('weekHeader').textContent = !tasks.length ? T.week_tasks_header
+    : allDone ? T.encourage_complete
+    : done === 0 ? T.encourage_none
+    : T.encourage_started(tasks.length - done);
 
   document.getElementById('weekLabel').textContent = T.week_label(week.iso_week);
   document.getElementById('progressLabel').textContent = T.progress(done, tasks.length);
-  document.getElementById('progressFill').style.width = tasks.length ? `${Math.round(done / tasks.length * 100)}%` : '0%';
+  const fill = document.getElementById('progressFill');
+  fill.style.width = tasks.length ? `${Math.round(done / tasks.length * 100)}%` : '0%';
+  fill.classList.toggle('complete', allDone);
+  heroCard.classList.toggle('is-complete', allDone);
 
   if (week.focus_text) {
     focusBanner.style.display = 'block';
@@ -77,8 +116,9 @@ function renderDashboard() {
 
 function taskCardHtml(t) {
   const unread = Store.hasUnread(t.id, 'model');
+  const isDone = t.status === 'postet';
   return `
-  <div class="card task-card" data-task-id="${t.id}">
+  <div class="card task-card${isDone ? ' is-done' : ''}" data-task-id="${t.id}">
     <div class="head">
       <h3>${esc(t.title)}</h3>
       <span class="pill deadline">${dayLabel(t.deadline_date)}</span>
@@ -91,7 +131,11 @@ function taskCardHtml(t) {
     ${t.execution ? `<div class="exec">${esc(t.execution)}</div>` : ''}
 
     <div class="stepper" data-stepper="${t.id}">
-      ${STATUS_ORDER.map(s => `<button data-status="${s}" class="${t.status === s ? 'current' : STATUS_ORDER.indexOf(t.status) > STATUS_ORDER.indexOf(s) ? 'done' : ''}">${STATUS_LABEL[s]}</button>`).join('')}
+      ${STATUS_ORDER.map(s => {
+        const cls = t.status === s ? 'current' : STATUS_ORDER.indexOf(t.status) > STATUS_ORDER.indexOf(s) ? 'done' : '';
+        const finalCls = (s === 'postet' && t.status === 'postet') ? ' is-final' : '';
+        return `<button data-status="${s}" class="${cls}${finalCls}">${STATUS_LABEL[s]}</button>`;
+      }).join('')}
     </div>
 
     ${t.status === 'postet' ? `
@@ -119,7 +163,13 @@ function wireTaskCard(t) {
         const url = prompt(T.mark_posted_prompt, t.posted_url || 'https://');
         if (!url) return;
         await Store.updateTask(t.id, { status: 'postet', posted_url: url });
+        const week = currentWeek();
+        const tasks = week ? Store.tasksForModelWeek(week.id, MODEL_ID) : [];
+        const nowAllDone = tasks.length > 0 && tasks.every(x => x.status === 'postet');
         renderDashboard();
+        showCelebration(nowAllDone ? T.celebrate_week : T.celebrate_posted);
+        const refreshedCard = document.querySelector(`[data-task-id="${t.id}"]`);
+        if (refreshedCard) refreshedCard.classList.add('pop');
         return;
       }
       await Store.updateTask(t.id, { status: newStatus });
@@ -167,12 +217,7 @@ function renderHistory() {
   const historyList = document.getElementById('historyList');
   const streakBox = document.getElementById('streakBox');
 
-  let streak = 0;
-  for (const w of weeks) {
-    const tasks = Store.tasksForModelWeek(w.id, MODEL_ID);
-    const pct = tasks.length ? tasks.filter(t => t.status === 'postet').length / tasks.length : 0;
-    if (pct === 1) streak++; else break;
-  }
+  const streak = computeStreak();
   streakBox.innerHTML = streak > 0 ? `<span class="streak">${T.streak(streak)}</span>` : '';
 
   historyList.innerHTML = weeks.length ? weeks.map(w => {

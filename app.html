@@ -6,7 +6,7 @@
 <title>VISIOON</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Inter:wght@400;500;600;650;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
@@ -23,15 +23,15 @@
 
   <!-- DASHBOARD -->
   <div class="tab active" id="tab-dashboard">
-    <h2 id="greeting" style="margin:0 0 6px;"></h2>
-    <p class="muted" id="weekHeader" style="margin:0 0 10px;"></p>
-
-    <div class="card">
-      <div class="row" style="justify-content:space-between; margin-bottom:8px;">
-        <span class="pill deadline" id="weekLabel"></span>
-        <span class="muted" id="progressLabel"></span>
+    <div class="hero-card" id="heroCard">
+      <h2 class="hero-greeting" id="greeting"></h2>
+      <p class="hero-subtext" id="weekHeader"></p>
+      <div class="hero-stats">
+        <span class="hero-week" id="weekLabel"></span>
+        <span class="hero-streak" id="heroStreak" style="display:none;"></span>
       </div>
       <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%;"></div></div>
+      <div class="hero-progress-label" id="progressLabel"></div>
     </div>
 
     <div class="banner" id="focusBanner" style="display:none;"></div>
@@ -45,6 +45,8 @@
     <div id="historyList"></div>
   </div>
 </div>
+
+<div class="celebrate-toast" id="celebrateToast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="assets/i18n.js"></script>

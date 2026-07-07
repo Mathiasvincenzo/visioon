@@ -11,8 +11,16 @@ const T = {
   status_filmet: 'Filmet',
   status_postet: 'Postet',
   mark_posted_prompt: 'Lim inn lenken til innlegget \u{1F389}',
-  empty_week: 'Ingen oppgaver ennå — sjekk igjen snart!',
+  empty_week: 'Ingen oppgaver ennå — nyt roen, sjekk igjen snart! ☕️',
   streak: (n) => `\u{1F525} ${n} uker på rad`,
+  streak_short: (n) => `\u{1F525} ${n}`,
+
+  // Progress-aware encouragement (dashboard subtext)
+  encourage_none: 'La oss komme i gang denne uka \u{1F4AA}',
+  encourage_started: (left) => left === 1 ? 'Nesten der — én oppgave igjen!' : `Du er i gang! ${left} oppgaver igjen.`,
+  encourage_complete: 'Alt fullført denne uka. Utrolig jobba \u{1F389}',
+  celebrate_posted: 'Postet! Nice jobba \u{1F389}',
+  celebrate_week: 'Hele uka i boks — du er en stjerne \u{2728}',
 
   // App chrome / nav
   app_title: 'VISIOON',
