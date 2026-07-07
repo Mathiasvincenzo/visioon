@@ -19,11 +19,11 @@ function renderLogo(mountSelector) {
 
     <g transform="translate(4, 196)">
       <text x="0" y="16" font-size="20" font-weight="700" fill="#8D0B0B" font-family="'Baloo 2','Fredoka',sans-serif" letter-spacing="1.5">Made by</text>
-      <g transform="translate(96, -14) scale(0.72)">
-        <rect x="2" y="2" width="17" height="17" fill="#141414"/>
-        <rect x="19" y="2" width="19" height="19" rx="6" fill="#141414"/>
-        <polygon points="19,21 39,21 39,44" fill="#141414"/>
-        <rect x="22" y="5" width="9" height="9" rx="3" fill="#FAF7F5"/>
+      <g transform="translate(96, -16) scale(0.65)">
+        <rect x="2" y="2" width="18" height="18" fill="#141414"/>
+        <rect x="20" y="2" width="20" height="20" fill="#141414"/>
+        <polygon points="20,22 40,22 40,45" fill="#141414"/>
+        <path d="M 20,22 L 20,11 A 11,11 0 0 1 31,22 Z" fill="#FAF9F7"/>
       </g>
     </g>
   </svg>`;
