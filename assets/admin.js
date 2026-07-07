@@ -432,6 +432,7 @@ function ideaCardHtml(idea, i) {
 }
 
 let lastGeneratedIdeas = [];
+let lastGeneratedModel = null;
 
 document.getElementById('btnGenerateIdeas').onclick = async () => {
   const modelId = document.getElementById('ideaModel').value;
@@ -449,9 +450,11 @@ document.getElementById('btnGenerateIdeas').onclick = async () => {
   document.getElementById('ideaActions').style.display = 'none';
 
   try {
+    lastGeneratedModel = model;
     lastGeneratedIdeas = await Store.generateIdeas(model, batchType, extra);
     document.getElementById('ideaResults').innerHTML = lastGeneratedIdeas.map(ideaCardHtml).join('');
     document.getElementById('ideaActions').style.display = lastGeneratedIdeas.length ? 'block' : 'none';
+    document.getElementById('btnAddSelectedIdeas').textContent = `Legg valgte idéer i ${model.display_name}s ukeplan`;
   } catch (e) {
     errEl.textContent = e.message;
     errEl.style.display = 'block';
@@ -463,22 +466,25 @@ document.getElementById('btnGenerateIdeas').onclick = async () => {
 
 document.getElementById('btnAddSelectedIdeas').onclick = async () => {
   const checked = Array.from(document.querySelectorAll('.idea-check:checked')).map(c => lastGeneratedIdeas[parseInt(c.dataset.ideaIndex, 10)]);
-  if (!checked.length) return;
+  if (!checked.length || !lastGeneratedModel) return;
   const btn = document.getElementById('btnAddSelectedIdeas');
   btn.disabled = true;
   btn.textContent = 'Legger til...';
   const draft = await Store.getDraftWeek();
-  for (const idea of checked) {
+  for (let i = 0; i < checked.length; i++) {
+    const idea = checked[i];
     await Store.addPoolTask(draft.id, {
       title: idea.title, hook: idea.hook || '', execution: idea.execution || '',
       format: idea.format || 'Reel', effort: idea.effort || 'Lav',
+      model_id: lastGeneratedModel.id,
+      deadline_date: addDays(draft.monday_date, i % 7),
     });
   }
   btn.disabled = false;
-  btn.textContent = 'Legg valgte idéer i oppgavepoolen';
+  btn.textContent = `Legg valgte idéer i ${lastGeneratedModel.display_name}s ukeplan`;
   document.getElementById('ideaResults').innerHTML = '';
   document.getElementById('ideaActions').style.display = 'none';
-  alert(`${checked.length} idé(er) lagt i oppgavepoolen. Gå til Ukeplan for å dra dem inn i uken.`);
+  alert(`${checked.length} idé(er) lagt rett i ${lastGeneratedModel.display_name}s ukeplan. Husk å trykke Publiser uke i Ukeplan-fanen når du er klar.`);
   await renderPlanner();
 };
 
